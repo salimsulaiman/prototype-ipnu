@@ -45,10 +45,10 @@ const HomePage = () => {
 
   const [selectedSekolah, setSelectedSekolah] = useState<Sekolah | null>(null);
 
-  const [provinsi, setProvinsi] = useState<Provinsi[]>([]);
-  const [selectedProvinsi, setSelectedProvinsi] = useState<Provinsi | null>(null);
+  // const [provinsi, setProvinsi] = useState<Provinsi[]>([]);
+  // const [selectedProvinsi, setSelectedProvinsi] = useState<Provinsi | null>(null);
 
-  const [kabupaten, setKabupaten] = useState<Kabupaten[]>([]);
+  // const [kabupaten, setKabupaten] = useState<Kabupaten[]>([]);
   const [selectedKabupaten, setSelectedKabupaten] = useState<Kabupaten | null>(null);
 
   const [kecamatan, setKecamatan] = useState<Kecamatan[]>([]);
