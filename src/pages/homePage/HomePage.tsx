@@ -28,6 +28,81 @@ type Desa = {
 };
 
 const HomePage = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const fileInputSPRef = useRef<HTMLInputElement>(null);
+  const [fileSPName, setFileSPName] = useState<string | null>(null);
+  const [previewSPUrl, setPreviewSPUrl] = useState<string | null>(null);
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileName(file.name);
+
+      // Buat URL untuk preview gambar
+      const imageUrl = URL.createObjectURL(file);
+      setPreviewUrl(imageUrl);
+    } else {
+      setFileName(null);
+      setPreviewUrl(null);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setFileName(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl); // bersihkan URL blob
+    }
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // reset input file
+    }
+  };
+
+  const handleRemoveSPFile = () => {
+    setFileSPName(null);
+    if (previewSPUrl) {
+      URL.revokeObjectURL(previewSPUrl); // bersihkan URL blob
+    }
+    setPreviewSPUrl(null);
+    if (fileInputSPRef.current) {
+      fileInputSPRef.current.value = ""; // reset input file
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewSPUrl) {
+        URL.revokeObjectURL(previewUrl);
+        URL.revokeObjectURL(previewSPUrl);
+      }
+    };
+  }, [previewUrl, previewSPUrl]);
+
+  const handleSPButtonClick = () => {
+    fileInputSPRef.current?.click();
+  };
+
+  const handleSPFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileSPName(file.name);
+
+      // Buat URL untuk preview gambar
+      const imageSPUrl = URL.createObjectURL(file);
+      setPreviewSPUrl(imageSPUrl);
+    } else {
+      setFileSPName(null);
+      setPreviewSPUrl(null);
+    }
+  };
+
   const [sekolah, setSekolah] = useState([
     {
       id: 1,
@@ -58,7 +133,7 @@ const HomePage = () => {
   const [selectedDesa, setSelectedDesa] = useState<Desa | null>(null);
 
   const [fullname, setFullname] = useState("");
-  const [email, setEmail] = useState("");
+  const [nik, setNik] = useState("");
   const [phone, setPhone] = useState("");
 
   // let address = `${selectedDesa?.name}, ${selectedKecamatan?.name}, ${selectedKabupaten?.name}, ${selectedProvinsi?.name}`;
@@ -167,11 +242,11 @@ const HomePage = () => {
         <Form className="flex flex-col w-full max-w-xs gap-4" onSubmit={handleSubmit}>
           <Input
             isRequired
-            errorMessage="Please enter a valid fullname"
-            label="Fullname"
+            errorMessage="Harap masukan nama lengkap"
+            label="Nama Lengkap"
             labelPlacement="outside"
             name="fullname"
-            placeholder="Enter your fullname"
+            placeholder="Masukan nama lengkap"
             type="text"
             onChange={(e) => setFullname(e.target.value)}
             value={fullname}
@@ -179,30 +254,30 @@ const HomePage = () => {
 
           <Input
             isRequired
-            errorMessage="Please enter a valid email"
-            label="Email"
+            errorMessage="Harap masukan nik"
+            label="NIK"
             labelPlacement="outside"
-            name="email"
-            placeholder="Enter your email"
-            type="email"
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
+            name="nik"
+            placeholder="Masukan NIK"
+            type="text"
+            onChange={(e) => setNik(e.target.value)}
+            value={nik}
           />
 
           <Input
             isRequired
-            errorMessage="Please enter a valid phone"
-            label="Phone"
+            errorMessage="Harap masukan no telepon"
+            label="No Telepon"
             labelPlacement="outside"
             name="phone"
-            placeholder="Enter your phone"
+            placeholder="Masukan no telepon"
             type="tel"
             onChange={(e) => setPhone(e.target.value)}
             value={phone}
           />
 
           <div className="space-y-2">
-            <div className="font-semibold">Select option:</div>
+            <div className="font-semibold">Pilih:</div>
 
             <div className="space-y-1">
               <label className="flex items-center space-x-2">
@@ -329,6 +404,87 @@ const HomePage = () => {
                 <AutocompleteItem key={sekolah?.id}>{sekolah.name}</AutocompleteItem>
               ))}
             </Autocomplete>
+          )}
+
+          <div className="w-full">
+            <label className="block mb-1 text-sm font-medium text-gray-700">Pilih Pas Foto</label>
+            {previewUrl && (
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="object-cover w-full mt-3 border border-gray-200 shadow-sm rounded-xl max-h-64"
+              />
+            )}
+            {fileName && (
+              <div className="flex items-center justify-between my-3">
+                <p className="text-sm text-gray-600 truncate">
+                  📁 <span className="font-medium">{fileName}</span>
+                </p>
+                <button onClick={handleRemoveFile} type="button" className="ml-2 text-sm text-red-600 hover:underline">
+                  Hapus
+                </button>
+              </div>
+            )}
+
+            <div
+              onClick={handleButtonClick}
+              className="flex items-center justify-center px-4 py-2 transition border border-gray-300 border-dashed cursor-pointer rounded-xl bg-gray-50 hover:bg-gray-100"
+            >
+              <svg
+                className="w-5 h-5 mr-2 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4-4m0 0l4-4m-4 4v12" />
+              </svg>
+              <span className="text-sm text-gray-600">{fileName ? "Ganti File" : "Pilih File"}</span>
+              <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+            </div>
+          </div>
+          {selectedRadio === "pac" && (
+            <div className="w-full">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Surat Pengesahan</label>
+              {previewSPUrl && (
+                <img
+                  src={previewSPUrl}
+                  alt="Preview"
+                  className="object-cover w-full mt-3 border border-gray-200 shadow-sm rounded-xl max-h-64"
+                />
+              )}
+              {fileSPName && (
+                <div className="flex items-center justify-between my-3">
+                  <p className="text-sm text-gray-600 truncate">
+                    📁 <span className="font-medium">{fileSPName}</span>
+                  </p>
+                  <button
+                    onClick={handleRemoveSPFile}
+                    type="button"
+                    className="ml-2 text-sm text-red-600 hover:underline"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              )}
+
+              <div
+                onClick={handleSPButtonClick}
+                className="flex items-center justify-center px-4 py-2 transition border border-gray-300 border-dashed cursor-pointer rounded-xl bg-gray-50 hover:bg-gray-100"
+              >
+                <svg
+                  className="w-5 h-5 mr-2 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4-4m0 0l4-4m-4 4v12" />
+                </svg>
+                <span className="text-sm text-gray-600">{fileName ? "Ganti File" : "Pilih File"}</span>
+                <input type="file" ref={fileInputSPRef} onChange={handleSPFileChange} className="hidden" />
+              </div>
+            </div>
           )}
 
           <div className="flex gap-2">
