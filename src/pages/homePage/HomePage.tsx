@@ -1,6 +1,6 @@
-import { Autocomplete, AutocompleteItem, Button, Form, Input, Radio, RadioGroup } from "@heroui/react";
+import { Autocomplete, AutocompleteItem, Button, Form, Input, Radio, RadioGroup, Spinner } from "@heroui/react";
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactHTMLElement } from "react";
 
 type Sekolah = {
   id: number;
@@ -28,6 +28,7 @@ type Desa = {
 };
 
 const HomePage = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -200,38 +201,44 @@ const HomePage = () => {
       });
   }, [selectedKecamatan]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  let wilayah = "";
+
+  if (selectedRadio === "pac") {
+    wilayah;
+  } else if (selectedRadio === "pr") {
+    wilayah = selectedDesa?.name || "";
+  } else {
+    wilayah = selectedSekolah?.name || "";
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    // const formData = new FormData();
-    // formData.append("Fullname", fullname);
-    // formData.append("Email", email);
-    // formData.append("Phone", phone);
-    // formData.append("Address", address);
+    const formData = new FormData();
+    formData.append("nama", fullname);
+    formData.append("nik", nik);
+    formData.append("telpon", phone);
+    formData.append("kategori", selectedRadio);
+    formData.append("kecamatan", selectedKecamatan?.name || "");
+    formData.append("wilayah", wilayah);
 
-    // fetch(
-    //   "https://script.google.com/macros/s/AKfycbyup1or52N8COUN6Sn8TBuvVqbreSnxjpvJln2YB1-wqwz9zAOVzz04tXlaXbKSQK6E2g/exec",
-    //   {
-    //     method: "POST",
-    //     body: formData,
-    //   }
-    // )
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     alert("Data berhasil dikirim");
-    //     setFullname("");
-    //     setEmail("");
-    //     setPhone("");
-    //     setSelectedProvinsi(null);
-    //     setSelectedKabupaten(null);
-    //     setSelectedKecamatan(null);
-    //     setSelectedDesa(null);
-    //   })
-    //   .catch((err) => {
-    //     console.error(err);
-    //     alert("Gagal mengirim data");
-    //   });
-    alert("Terkirim");
+    try {
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbzhvUPlmz4ja-F8avY-d4vNA0kXyMJ13PUxKc9kslOWkla36lY5oeCfS2f8gvYPvC_48w/exec",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const result = await response.text();
+      alert("success mengirim data");
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Gagal mengirim:", error);
+      alert("Terjadi kesalahan.");
+      setIsLoading(false);
+    }
   };
   return (
     <div className="w-full">
@@ -488,8 +495,13 @@ const HomePage = () => {
           )}
 
           <div className="flex gap-2">
-            <Button color="primary" type="submit">
-              Submit
+            <Button
+              color="primary"
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center justify-center disabled:bg-blue-400"
+            >
+              {isLoading ? <Spinner size="sm" color="white" /> : "Send"}
             </Button>
           </div>
         </Form>
